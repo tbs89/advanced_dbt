@@ -34,6 +34,8 @@ models:
     marts:
       core:
         +schema: core_reporting
+        +meta:
+          node_color: gold
       finance:
         +schema: finance
       product:
@@ -41,6 +43,8 @@ models:
 
 seeds:
   dbt_project_evaluator:
+    +meta:
+      node_color: none
     dbt_project_evaluator_exceptions:
       +enabled: false
 
