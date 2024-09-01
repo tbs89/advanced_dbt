@@ -1,0 +1,29 @@
+models:
+  - name: int_events
+    description: "This intermediate model consolidates event data from the stg_bingeflix__events model, making it easier to reuse this data across multiple downstream models."
+    columns:
+      - name: session_id
+        description: "{{ doc('bingeflix_column_session_id') }}"
+        tests:
+          - not_null
+
+      - name: created_at
+        description: "{{ doc('bingeflix_column_created_at') }}"
+        tests:
+          - not_null
+
+      - name: user_id
+        description: "{{ doc('bingeflix_column_user_id') }}"
+        tests:
+          - not_null
+
+      - name: event_name
+        description: "{{ doc('bingeflix_column_event_name') }}"
+        tests:
+          - not_null
+
+      - name: event_id
+        description: "{{ doc('bingeflix_column_event_id') }}"
+        tests:
+          - not_null
+          - unique

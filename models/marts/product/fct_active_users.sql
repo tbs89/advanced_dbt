@@ -6,7 +6,7 @@ events AS (
         DATE(created_at) AS created_date,
         event_id AS login_id
     FROM
-        {{ ref('stg_bingeflix__events')}}
+        {{ ref('int_events')}}
     WHERE
         event_name = 'User Logged In'
 ),
@@ -30,4 +30,5 @@ final AS (
         LEFT JOIN events ON date_spine.calendar_date = events.created_date
     GROUP BY ALL
 )
+
 SELECT * FROM final

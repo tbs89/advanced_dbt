@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: fct_events
+    description: "This model represents a fact table that aggregates user event data from the Bingeflix platform. Each row corresponds to a specific event that a user has triggered during a session."
+    columns:
+      - name: session_id
+        description: "The unique identifier of the session in which the event occurred. This links the event to a specific user session."
+        tests:
+          - not_null
+      - name: created_at
+        description: "The timestamp indicating when the event was logged. This reflects the exact time when the event occurred during the session."
+        tests:
+          - not_null
+      - name: user_id
+        description: "The unique identifier of the user who triggered the event. This links the event to a specific user."
+        tests:
+          - not_null
+      - name: event_name
+        description: "The name or type of the event. This describes the action the user took, such as 'login' or 'play_video'."
+      - name: event_id
+        description: "The unique identifier of the event. This ensures that each event is uniquely identifiable within the system."
+        tests:
+          - not_null
+          - unique
