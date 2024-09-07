@@ -24,4 +24,3 @@ models:
         description: "{{ doc('bingeflix_column_payment_period') }}"
         data_tests:
           - not_null
-

@@ -1,0 +1,23 @@
+version: 2
+macros:
+  - name: rolling_window_aggregation
+    description: "Calculates a rolling window aggregation over a specified number of periods, allowing for custom aggregation type and window size."
+    arguments:
+      - name: column_name
+        description: "The name of the column to apply the aggregation to."
+      - name: partition_by
+        description: "The column to partition the window by."
+      - name: aggregation_type
+        description: "The type of aggregation to apply (e.g., 'avg', 'sum', 'count'). Defaults to 'avg'."
+      - name: order_by
+        description: "The column to order the window by. Defaults to 'created_at'."
+      - name: window_size
+        description: "The number of periods in the rolling window. Defaults to 7."
+
+  - name: adjust_end_month
+    description: "Adjusts the end_month based on the start_month and whether the subscription has been canceled or not."
+    arguments:
+      - name: start_month
+        description: "The start month of the subscription."
+      - name: end_month
+        description: "The end month of the subscription, or NULL if it is still active."
