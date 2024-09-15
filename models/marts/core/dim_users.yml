@@ -74,10 +74,6 @@ models:
 
       - name: count_of_subscriptions
         description: Count of subscriptions.
-        data_tests:
-          - not_null
 
       - name: first_subscription_starts_at
         description: First subscription timestamps
-        data_tests:
-          - not_null

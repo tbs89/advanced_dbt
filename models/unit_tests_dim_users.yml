@@ -1,0 +1,28 @@
+version: 2
+
+unit_tests:
+  - name: test_age_at_acquisition_correct
+    description: "Ensure that age_at_acquisition is calculated correctly based on birthdate and acquisition date"
+    model: dim_users
+    given:
+      - input: ref('stg_bingeflix__users')
+        format: csv
+        rows: |
+          user_id,birthdate,created_at
+          1,1980-05-15,2023-01-01
+          2,1990-08-20,2023-01-01
+          3,2000-12-31,2023-01-01
+      - input: ref('stg_bingeflix__subscriptions')
+        format: csv
+        rows: |
+          user_id,starts_at,subscription_id
+          1,2023-01-01T00:00:00,1001
+          2,2023-01-01T00:00:00,1002
+          3,2023-01-01T00:00:00,1003
+    expect:
+      format: csv
+      rows: |
+        user_id,age_at_acquisition
+        1,42
+        2,32
+        3,22
