@@ -1,50 +1,494 @@
+version: 2
+
 models:
-  - name: fct_mrr
-    config:
-      tags: p0
-    description: This model contains calculations for the monthly recurring revenue generated per user and subscription for each month.
-
+  - name: subscription_periods
+    description: "Calculates the subscription periods for each user, determining the start and end date of the subscription."
     columns:
-      - name: surrogate_key
-        description: The surrogate key. This acts as a primary key for this model.
-        data_tests:
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
           - not_null
-          - unique:
-              config:
-                tags: p0
-
-      - name: date_month
-        description: The calendar month.
+          - unique
 
       - name: user_id
-        description: '{{ doc("bingeflix_column_user_id") }}'
-
-      - name: subscription_id
-        description: The unique identifier for the subscription.
-
-      - name: starts_at
-        description: When the subscription started.
-
-      - name: ends_at
-        description: When the subscription ended. This value is NULL if the subscription has not had auto-renew turned off.
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
 
       - name: plan_name
-        description: The name of the subscription plan.
+        description: "Name of the subscription plan."
+        tests:
+          - not_null
 
-      - name: mrr_amount
-        description: The amount of monthly recurring revenue generated from the subscription in a given month.
+      - name: monthly_amount
+        description: "Monthly amount of the subscription."
+        tests:
+          - not_null
 
-      - name: mrr_change
-        description: The change in monthly recurring revenue from the associated subscription versus last month.
+      - name: starts_at
+        description: "Start date of the subscription."
+        tests:
+          - not_null
 
-      - name: retained_mrr_amount
-        description: The amount of monthly recurring revenue associated with the subscription retained from the previous month.
+      - name: ends_at
+        description: "End date of the subscription."
+        tests:
+          - not_null
+
+      - name: start_month
+        description: "Subscription start month."
+        tests:
+          - not_null
+
+      - name: adjusted_end_month
+        description: "Adjusted end month of the subscription according to business rules."
+        tests:
+          - not_null
+
+  - name: subscribers
+    description: "Identifies the first and last subscription date for each user and subscription."
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+
+      - name: first_start_month
+        description: "First subscription start month."
+        tests:
+          - not_null
+
+      - name: last_end_month
+        description: "Last subscription end month."
+        tests:
+          - not_null
+
+  - name: subscriber_months
+    description: "Generates a row per month for each active user subscription."
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+
+      - name: date_month
+        description: "Month of the active subscription."
+        tests:
+          - not_null
+
+  - name: mrr_base
+    description: "Calculates the base MRR per month for each subscription."
+    columns:
+      - name: date_month
+        description: "Month of the active subscription."
+        tests:
+          - not_null
+
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+
+      - name: mrr
+        description: "Base monthly recurring revenue for the subscription."
+        tests:
+          - not_null
+
+  - name: subscription_revenue_by_month
+    description: "Calculates the subscription status and the start and end dates for each month."
+    columns:
+      - name: date_month
+        description: "Month of the active subscription."
+        tests:
+          - not_null
+
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+
+      - name: is_subscribed_current_month
+        description: "Indicates whether the user is subscribed in the current month."
+        tests:
+          - not_null
+
+      - name: first_subscription_month
+        description: "First month the user was subscribed."
+        tests:
+          - not_null
+
+      - name: last_subscription_month
+        description: "Last month the user was subscribed."
+        tests:
+          - not_null
+
+      - name: is_first_subscription_month
+        description: "Indicates whether this is the user's first subscription month."
+        tests:
+          - not_null
+
+      - name: is_last_subscription_month
+        description: "Indicates whether this is the user's last subscription month."
+        tests:
+          - not_null
+
+      - name: mrr
+        description: "Monthly recurring revenue for the subscription."
+        tests:
+          - not_null
+
+  - name: subscription_churn_by_month
+    description: "Calculates the monthly churn for each subscription."
+    columns:
+      - name: date_month
+        description: "Month in which churn occurred."
+        tests:
+          - not_null
+
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+
+      - name: is_subscribed_current_month
+        description: "Indicates whether the user is subscribed in the current month."
+        tests:
+          - not_null
+
+      - name: first_subscription_month
+        description: "First month the user was subscribed."
+        tests:
+          - not_null
+
+      - name: last_subscription_month
+        description: "Last month the user was subscribed."
+        tests:
+          - not_null
+
+      - name: is_first_subscription_month
+        description: "Indicates whether this is the user's first subscription month."
+        tests:
+          - not_null
+
+      - name: is_last_subscription_month
+        description: "Indicates whether this is the user's last subscription month."
+        tests:
+          - not_null
+
+      - name: mrr
+        description: "Monthly recurring revenue for the subscription."
+        tests:
+          - not_null
+
+  - name: unioned
+    description: "Combines revenue and churn into a single dataset."
+    columns:
+      - name: date_month
+        description: "Month of the active subscription or churn."
+        tests:
+          - not_null
+
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+
+      - name: is_subscribed_current_month
+        description: "Indicates whether the user is subscribed in the current month."
+        tests:
+          - not_null
+
+      - name: first_subscription_month
+        description: "First month the user was subscribed."
+        tests:
+          - not_null
+
+      - name: last_subscription_month
+        description: "Last month the user was subscribed."
+        tests:
+          - not_null
+
+      - name: is_first_subscription_month
+        description: "Indicates whether this is the user's first subscription month."
+        tests:
+          - not_null
+
+      - name: is_last_subscription_month
+        description: "Indicates whether this is the user's last subscription month."
+        tests:
+          - not_null
+
+      - name: mrr
+        description: "Monthly recurring revenue for the subscription."
+        tests:
+          - not_null
+
+  - name: mrr_with_changes
+    description: "Calculates MRR changes between months."
+    columns:
+      - name: date_month
+        description: "Month of the active subscription or churn."
+        tests:
+          - not_null
+
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+
+      - name: is_subscribed_current_month
+        description: "Indicates whether the user is subscribed in the current month."
+        tests:
+          - not_null
+
+      - name: first_subscription_month
+        description: "First month the user was subscribed."
+        tests:
+          - not_null
+
+      - name: last_subscription_month
+        description: "Last month the user was subscribed."
+        tests:
+          - not_null
+
+      - name: is_first_subscription_month
+        description: "Indicates whether this is the user's first subscription month."
+        tests:
+          - not_null
+
+      - name: is_last_subscription_month
+        description: "Indicates whether this is the user's last subscription month."
+        tests:
+          - not_null
+
+      - name: mrr
+        description: "Monthly recurring revenue for the subscription."
+        tests:
+          - not_null
+
+      - name: is_subscribed_previous_month
+        description: "Indicates whether the user was subscribed in the previous month."
+        tests:
+          - not_null
 
       - name: previous_month_mrr_amount
-        description: The amount of monthly recurring revenue associated with the subscription earned in the previous month.
+        description: "MRR amount in the previous month."
+        tests:
+          - not_null
+
+      - name: mrr_change
+        description: "MRR change compared to the previous month."
+        tests:
+          - not_null
+
+  - name: final_mrr
+    description: "Classifies each month by subscription change categories and calculates retained MRR."
+    columns:
+      - name: date_month
+        description: "Month of the active subscription or churn."
+        tests:
+          - not_null
+
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+
+      - name: starts_at
+        description: "Start date of the subscription."
+        tests:
+          - not_null
+
+      - name: ends_at
+        description: "End date of the subscription."
+        tests:
+          - not_null
+
+      - name: plan_name
+        description: "Name of the subscription plan."
+        tests:
+          - not_null
+
+      - name: mrr_amount
+        description: "Monthly recurring revenue for the subscription."
+        tests:
+          - not_null
+
+      - name: mrr_change
+        description: "MRR change compared to the previous month."
+        tests:
+          - not_null
+
+      - name: retained_mrr_amount
+        description: "Retained MRR amount in the month."
+        tests:
+          - not_null
+
+      - name: previous_month_mrr_amount
+        description: "MRR amount in the previous month."
+        tests:
+          - not_null
 
       - name: change_category
-        description: The category the subscription falls into based on the current month (e.g. new, churned, retained, reactivated)
+        description: "Subscription change category."
+        tests:
+          - not_null
 
       - name: month_retained_number
-        description: The number of months the subscription has been retained since it was started (first month = 0).
+        description: "Number of months the user has retained the subscription."
+        tests:
+          - not_null
+
+  - name: fct_mrr
+    description: "Final model that calculates Monthly Recurring Revenue (MRR) for each user."
+    columns:
+      - name: surrogate_key
+        description: "Surrogate key generated for each unique record."
+        tests:
+          - not_null
+          - unique
+
+      - name: date_month
+        description: "Month of the active subscription or churn."
+        tests:
+          - not_null
+
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+
+      - name: starts_at
+        description: "Start date of the subscription."
+        tests:
+          - not_null
+
+      - name: ends_at
+        description: "End date of the subscription."
+        tests:
+          - not_null
+
+      - name: plan_name
+        description: "Name of the subscription plan."
+        tests:
+          - not_null
+
+      - name: mrr_amount
+        description: "Monthly recurring revenue for the subscription."
+        tests:
+          - not_null
+
+      - name: mrr_change
+        description: "MRR change compared to the previous month."
+        tests:
+          - not_null
+
+      - name: retained_mrr_amount
+        description: "Retained MRR amount in the month."
+        tests:
+          - not_null
+
+      - name: previous_month_mrr_amount
+        description: "MRR amount in the previous month."
+        tests:
+          - not_null
+
+      - name: change_category
+        description: "Subscription change category."
+        tests:
+          - not_null
+
+      - name: month_retained_number
+        description: "Number of months the user has retained the subscription."
+        tests:
+          - not_null
+
+
+  - name: monthly_subscriptions
+    description: "Calculates the subscription periods for each user, determining the start and end dates of the subscription."
+    columns:
+    - name: subscription_id
+      description: "Unique identifier for the subscription."
+      tests:
+        - not_null
+        - unique
+
+    - name: user_id
+      description: "Unique identifier for the user."
+      tests:
+        - not_null
+
+    - name: plan_name
+      description: "Name of the subscription plan."
+      tests:
+        - not_null
+
+    - name: pricing
+      description: "Pricing details of the subscription."
+      tests:
+        - not_null
+
+    - name: starts_at
+      description: "Start date of the subscription."
+      tests:
+        - not_null
+
+    - name: ends_at
+      description: "End date of the subscription."
+      tests:
+        - not_null
+
+    - name: start_month
+      description: "Start month of the subscription."
+      tests:
+        - not_null
+
+    - name: end_month
+      description: "End month of the subscription."
+      tests:
+        - not_null

@@ -19,11 +19,16 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+dispatch:
+  - macro_namespace: dbt
+    search_order: [dbt, dbt_snowflake_monitoring]
+
 models:
   course_advanced_dbt:
     +materialized: view
     +grants:
       select: ['transformer', 'reporter']
+    +query_comment: "dbt-snowflake-monitoring"
 
     staging:
       +schema: staging
@@ -40,6 +45,9 @@ models:
         +schema: finance
       product:
         +schema: product
+
+    dbt_snowflake_monitoring:
+      +enabled: true
 
 seeds:
   dbt_project_evaluator:
